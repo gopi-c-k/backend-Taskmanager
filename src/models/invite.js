@@ -6,8 +6,7 @@ const inviteSchema = new mongoose.Schema({
     role: { type: String, enum: ['Manager', 'Member'], required: true },
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     invitedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    status: { type: String, enum: ['Pending', 'Accepted'], default: 'Pending' },
-    expiresAt: { type: Date, required: true }
+    status: { type: String, enum: ['Pending', 'Accepted'], default: 'Pending' }
 });
 
 module.exports = mongoose.model('Invite', inviteSchema);

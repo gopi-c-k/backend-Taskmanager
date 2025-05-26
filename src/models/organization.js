@@ -26,6 +26,12 @@ const organizationSchema = new mongoose.Schema({
       ref: 'User'
     }
   ],
+  tasks: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Task'
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now

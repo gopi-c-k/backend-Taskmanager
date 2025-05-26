@@ -16,6 +16,7 @@ const generateUniqueNumericToken = async () => {
 };
 
 const inviteUser = async (req, res) => {
+    console.log("Invite User fn called");
   try {
     const { email, role } = req.body;
     if (!['Manager', 'Member'].includes(role)) {

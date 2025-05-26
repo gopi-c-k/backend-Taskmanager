@@ -3,9 +3,11 @@ const User = require('../models/user');
 const dotenv = require('dotenv');
 
 const authMiddleware = async (req, res, next) => {
+  console.log("auth middleware called");
   try {
     const authHeader = req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log("Token Missing")
       return res.status(401).json({ message: 'Authorization token missing' });
     }
 
