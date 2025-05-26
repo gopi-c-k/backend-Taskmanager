@@ -8,10 +8,11 @@ const taskStats = require('../controllers/task/getTaskStatsForOrganization');
 const router = express.Router();
 
 // Create Task
-router.post('/tasks', verify, authorize(['Admin', 'Manager']), taskController.createTask);
+router.post('/create', verify, authorize(['Admin', 'Manager']), taskController.createTask);
 
 // Get Tasks
 router.get('/tasks', verify, authorize(['Admin', 'Manager', 'Member']), taskController.getTasks);
+router.get('/:memberId',verify,authorize(['Member']), taskController.getTask);
 router.get('/stats', verify, authorize(['Admin']), taskStats);
 // Update Task
 router.put('/tasks/:id', verify, authorize(['Admin', 'Manager']), taskController.updateTask);

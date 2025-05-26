@@ -6,6 +6,7 @@ const taskSchema = new mongoose.Schema({
     required: true
   },
   description: String,
+  comments: String,
   category: {
     type: String,
     enum: ['Bug', 'Feature', 'Improvement'],
@@ -27,7 +28,8 @@ const taskSchema = new mongoose.Schema({
   },
   assignedTo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
