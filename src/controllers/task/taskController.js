@@ -56,12 +56,8 @@ exports.getTasks = async (req, res) => {
 };
 exports.getTask = async (req, res) => {
   try {
-    const memberId = req.params.memberId;
-    if (!memberId) {
-      return res.status(400).json({ message: "Member ID is required" });
-    }
     const tasks = await Task.find({
-      assignedTo: memberId,
+      assignedTo: req.backUser,
       organization: req.backUser.organization,
     }).populate('assignedTo', 'name');
 
@@ -87,6 +83,52 @@ exports.updateTask = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+exports.updateTaskByMember = async (req, res) => {
+  const taskId = req.params.id;
+  const { status, comment } = req.body;
+  const userId = req.backUser?._id; 
+  const userOrg = req.backUser?.organization;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: User not found" });
+  }
+
+  if (!status) {
+    return res.status(400).json({ message: "Status is required" });
+  }
+
+  try {
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    if (task.assignedTo.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Forbidden: You are not assigned to this task" });
+    }
+
+    if (task.organization.toString() !== userOrg.toString()) {
+      return res.status(403).json({ message: "Forbidden: Organization mismatch" });
+    }
+
+    // Update task status and comment
+    task.status = status;
+    if (comment !== undefined) {
+      task.comments = comment;
+    }
+
+    await task.save();
+
+    return res.status(200).json({ message: "Task updated successfully", task });
+  } catch (error) {
+    console.error("Error updating task by member:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 // Delete Task
 exports.deleteTask = async (req, res) => {
