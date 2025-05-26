@@ -1,19 +1,29 @@
-// middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user');
+const dotenv = require('dotenv');
 
-module.exports = async (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1]; // Bearer <token>
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
+const authMiddleware = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
-    if (!user) return res.status(401).json({ message: 'User not found' });
+    const authHeader = req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Authorization token missing' });
+    }
 
-    req.user = user; // Attach to request
-    next();
+    const token = authHeader.split(' ')[1];
+
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    req.backUser = user; // Attach user to request
+    next(); 
   } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
+    console.error('Auth middleware error:', err.message);
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
+
+module.exports = authMiddleware;
